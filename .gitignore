@@ -21,3 +21,18 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+
+.idea
+*.iml
+target
+
+erp_connection.properties
+erp_credentials.properties
+neo4j_connection.properties
+neo4j_credentials.properties
+
+
+/neo4j-db/test_graph_db/
+db_connection.properties
+db_credentials.properties
