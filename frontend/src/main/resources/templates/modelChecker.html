@@ -1,0 +1,237 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Path Checker</title>
+
+    <th:block th:include="fragments/headerinc :: head"/>
+    <th:block th:include="fragments/graphHeaderinc :: head"/>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.min.css}"/>
+
+</head>
+
+<body id="viewPage-top">
+
+<th:block th:include="fragments/header :: header"/>
+
+<div class="container-fluid" style="height: 500px;">
+
+    <!--/*@thymesVar id="defaultModelButtonData" type="List<at.ac.wuwien.causalminer.erp2graph.frontend.model.ModelCheckerButtonData>"*/-->
+    <!--/*@thymesVar id="buttonData" type="at.ac.wuwien.causalminer.frontend.model.ModelCheckerButtonData"*/-->
+
+    <div class="row mt-4">
+        <div class="col-md-12" id="collapseParent">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header" id="headingOne">
+                    <button class="btn" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <h5 class="mr-auto my-0 font-weight-normal">
+                            Create Default Process Model
+                        </h5>
+                    </button>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#collapseParent">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h5>Nodes</h5>
+                                    </div>
+
+                                    <th:block th:each="buttonData : ${defaultModelButtonData}">
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn"
+                                                    th:style="'border: 1px solid black; background-color: ' + ${buttonData.color}"
+                                                    th:text="${buttonData.label}" th:data-label="${buttonData.label}"
+                                                    th:data-color="${buttonData.color}"
+                                                    onclick="addNodeToGraph(this.getAttribute('data-label'), this.getAttribute('data-color'))">
+                                                foobar
+                                            </button>
+                                        </div>
+                                    </th:block>
+                                </div>
+
+                                <div class="row mt-5">
+                                    <div class="col-md-12">
+                                        <h5>Operations</h5>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="loadTemplateModel()">
+                                            Load Template
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" onclick="clearDefaultModelView()">
+                                            Clear Model
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card mb-4 shadow-sm">
+                                    <div class="card-header d-flex mb-0">
+                                        <h5 class="mr-auto my-0 font-weight-normal">Default Process Model</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <th:block th:include="fragments/processViewCanvas :: processView(processViewElementId='defaultProcessModelView', processViewSize='small')"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <button type="button" class="btn btn-primary" onclick="findPartialMatchingModels()">
+                            Find Partial Matching
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="findPartialNotMatchingModels()">
+                            Find Partial Not Matching
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="findPartialNotMatchingModelsUserFunction()">
+                            Find Partial Not Matching User Function
+                        </button>
+
+                        <button type="button" class="btn btn-primary" onclick="findCompleteMatchingModels()">
+                            Find Complete Matching
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="findCompleteNotMatchingModels()">
+                            Find Complete Not Matching
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="h-divider"></div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCard(cases-table)"/>
+        </div>
+        <div class="col-md-8">
+            <th:block
+                    th:include="fragments/processViewCanvas :: processViewDetailsTableCard(processViewElementId='processView', processViewSize='medium', detailsTableElementId='details-table')"/>
+        </div>
+    </div>
+
+
+    <th:block th:include="fragments/scripts :: scripts"/>
+    <th:block th:include="fragments/graphScripts :: scripts"/>
+    <th:block th:include="fragments/detailsTableScripts :: scripts"/>
+    <th:block th:include="fragments/scripts :: fetchPost"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
+    <script type="text/javascript" src="/js/cytoscape-edgehandles.js"></script>
+    <script type="text/javascript" src="/js/cytoscape-cxtmenu.js"></script>
+
+
+    <script>
+
+        var defaultProcessViewOptions = {
+            processViewId: "#defaultProcessModelView",
+            withEdgehandles: true,
+            withContextMenu: true,
+            contextConfiguration: {
+                selector: 'node, edge',
+
+                commands: [
+                    {
+                        content: '<span class="fa fa-trash fa-2x"></span>',
+                        select: function (ele) {
+                            defaultProcessModelView.cy.remove(ele);
+                        }
+                    },
+                    {
+                        content: '',
+                        select: function (ele) {
+                        }
+                    }
+                ]
+            }
+        };
+        var defaultProcessModelView = ProcessView(defaultProcessViewOptions);
+
+        function loadTemplateModel() {
+            defaultProcessModelView.draw("/api/v1/process/model/checker/loadTemplate");
+        }
+
+
+        function clearDefaultModelView() {
+            defaultProcessModelView.cy.destroy();
+            defaultProcessModelView = ProcessView(defaultProcessViewOptions);
+        }
+
+        function addNodeToGraph(nodeLabel, nodeColor) {
+            defaultProcessModelView.cy.startBatch();
+            defaultProcessModelView.cy.add([{
+                group: 'nodes',
+                data: {"label": nodeLabel, "display": "element", "color": nodeColor, "shape": "round-rectangle"},
+                position: {x: 100, y: 100}
+            }])
+            defaultProcessModelView.cy.endBatch();
+        }
+
+
+        var casesTable = $('#cases-table').DataTable(TableProperties.getProcessesTable());
+        var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+        function findPartialNotMatchingModels() {
+            postData('/api/v1/process/model/checker/partial/notMatching/table', defaultProcessModelView.cy.json().elements).then((result) => {
+                casesTable.clear();
+                casesTable.rows.add(result.data).draw();
+            })
+        }
+
+        function findPartialNotMatchingModelsUserFunction() {
+            postData('/api/v1/process/model/checker/partial/notMatching/userFunction/table', defaultProcessModelView.cy.json().elements).then((result) => {
+                casesTable.clear();
+                casesTable.rows.add(result.data).draw();
+            })
+        }
+
+        function findPartialMatchingModels() {
+            postData('/api/v1/process/model/checker/partial/matching/table', defaultProcessModelView.cy.json().elements).then((result) => {
+                casesTable.clear();
+                casesTable.rows.add(result.data).draw();
+            })
+        }
+
+        function findCompleteNotMatchingModels() {
+            postData('/api/v1/process/model/checker/complete/notMatching/table', defaultProcessModelView.cy.json().elements).then((result) => {
+                casesTable.clear();
+                casesTable.rows.add(result.data).draw();
+            })
+        }
+
+        function findCompleteMatchingModels() {
+            postData('/api/v1/process/model/checker/complete/matching/table', defaultProcessModelView.cy.json().elements).then((result) => {
+                casesTable.clear();
+                casesTable.rows.add(result.data).draw();
+            })
+        }
+
+
+        var graphOptions = {
+            processViewId: "#processView",
+            // nullNodeToggleId: "#nullNodesToggle",
+            tableElementId: "#details-table",
+            onProcessElementClick: (clickedElement) => {
+                TableUtils.verticalOnProcessElementClick(clickedElement);
+            },
+            withEdgehandles: false
+        };
+
+        var processModelView = ProcessView(graphOptions);
+
+        casesTable.on('select', function (e, dt, type, indexes) {
+            if (type === 'row') {
+                var data = casesTable.rows(indexes).data().pluck('instanceIdFull');
+                processModelView.draw("/api/v1/process/instance/" + data[0]);
+            }
+        });
+
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Process Durations</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css"/>
+
+    <th:block th:include="fragments/headerinc :: head" />
+    <th:block th:include="fragments/graphHeaderinc :: head" />
+
+</head>
+
+<body id="viewPage">
+
+
+<th:block th:include="fragments/header :: header" />
+
+<div class="container-fluid">
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+
+            <div class="card">
+                <h5 class="card-header">
+                    Durations
+                </h5>
+                <div class="card-body">
+
+                    <div class="table-responsive">
+                        <table id="durations-table" class="table table-hover table-sm w-100">
+                            <thead>
+                            <tr>
+                                <th>Case ID</th>
+                                <th>Order ID</th>
+                                <th>Start Time</th>
+                                <th>End Event Type</th>
+                                <th>End Time</th>
+                                <th>Total Working Time (Days)</th>
+                                <th class="d-none">Full Case ID</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <th:block th:include="fragments/processViewCanvas :: processViewDetailsTableCard(processViewElementId='processView', processViewSize='small', detailsTableElementId='details-table')" />
+        </div>
+        <div class="col-md-6">
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="my-0 font-weight-normal">Activity Durations</h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm" id="activity-detail-table">
+                            <thead>
+                            <tr>
+                                <th class="d-none">ID</th>
+                                <th>Event Type</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Duration (Days)</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<th:block th:include="fragments/scripts :: scripts" />
+<th:block th:include="fragments/graphScripts :: scripts" />
+<th:block th:include="fragments/detailsTableScripts :: scripts" />
+
+
+<script type="text/javascript">
+
+    var processModelView = ProcessView({
+        processViewId: "#processView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#details-table",
+        processDrawingDoneEvent: (nodes) => {
+            loadActivityDurationTableHorizontal(nodes);
+        },
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    });
+
+    var totalDurationsTable = $('#durations-table').DataTable({
+        autoWidth: false,
+        processing: true,
+        searching: true,
+        pagingType: "full_numbers",
+        select: {
+            style: 'single',
+            items: 'row',
+            info: false
+        },
+        ajax: {
+            url: "/api/v1/process/instance/durations/table",
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            data: function (d) {
+                return JSON.stringify(d);
+            }
+        },
+        columns: [
+            {data: "instanceIdLabel", searchable: false},
+            {data: "startId"},
+            {data: "pathStartDate"},
+            {data: "endEventType"},
+            {data: "pathEndDate"},
+            {data: "totalDurationMinutes"},
+            {data: "instanceIdFull", searchable: true, visible: false}
+        ]
+    });
+    totalDurationsTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            detailsTable.clear().draw();
+
+            var data = totalDurationsTable.rows(indexes).data().pluck('instanceIdFull');
+            processModelView.draw("/api/v1/process/instance/" + data[0]);
+        }
+    });
+
+    var detailsDurationTableProperties = TableProperties.getDetailsTableVertical();
+    detailsDurationTableProperties.columns = [
+        {data: "id", visible: false},
+        {data: "type"},
+        {data: "creationDate"},
+        {data: "changeDate"},
+        {data: "duration"}
+    ];
+    detailsDurationTableProperties.order = [ [ 1, 'asc' ] ];
+    var detailsDurationTable = $('#activity-detail-table').DataTable(detailsDurationTableProperties);
+    detailsDurationTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var selectionId = detailsDurationTable.rows(indexes).data().pluck('id');
+            var element = processModelView.cy.getElementById(selectionId[0]).data();
+            TableUtils.verticalOnProcessElementClick(element);
+        }
+    });
+
+    var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+    // detailsTable.order = [ [ 0, 'asc' ] ];
+
+    function loadActivityDurationTableHorizontal(nodes) {
+        var detailsDurationTable = $('#activity-detail-table').DataTable();
+        detailsDurationTable.clear();
+        var properties = [];
+        nodes.forEach((node) => {
+            if (JSON.stringify(node.data.properties["duration"]) !== undefined) {
+                var row = {};
+                row.id = JSON.stringify(node.data.id).replace(/"/g, '');
+                row.type = JSON.stringify(node.data.label).replace(/"/g, '');
+                row.creationDate = JSON.stringify(node.data.properties["creationDate"]).replace(/"/g, '');
+                row.changeDate = JSON.stringify(node.data.properties["changeDate"]).replace(/"/g, '');
+                row.duration = JSON.stringify(node.data.properties["duration-days"]).replace(/"/g, '');
+                properties.push(row);
+            }
+        });
+
+        detailsDurationTable.rows.add(properties).draw();
+    }
+
+
+</script>
+
+
+</body>
+</html>

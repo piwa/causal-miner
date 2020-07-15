@@ -1,0 +1,6 @@
+
+spring.datasource.erp.jdbcUrl =
+spring.datasource.erp.driverName =
+spring.datasource.erp.ddl =
+
+spring.jpa.properties.jadira.usertype.autoRegisterUserTypes =

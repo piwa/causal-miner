@@ -1,0 +1,4 @@
+
+
+spring.datasource.neo4j.uri = bolt://<neo4j-url>:7687
+

@@ -1,0 +1,74 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Transition Probabilities</title>
+
+    <th:block th:include="fragments/headerinc :: head"/>
+    <th:block th:include="fragments/graphHeaderinc :: head"/>
+
+</head>
+
+<body id="viewPage-top">
+
+<th:block th:include="fragments/header :: header"/>
+
+<div class="container-fluid" style="height: 500px;">
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex mb-0">
+                    <h5 class="mr-auto my-0 font-weight-normal">Process Model</h5>
+<!--                    <a href="#" id="nullNodesToggle" class="">Toggle NULL Nodes</a>-->
+                </div>
+                <div class="card-body">
+                    <th:block th:include="fragments/processViewCanvas :: processView(processViewElementId='processView', processViewSize='medium')"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="my-0 font-weight-normal">Details</h5>
+                </div>
+
+                <div class="card-body">
+                    <th:block
+                            th:include="fragments/processViewCanvas :: detailsTable(detailsTableElementId=${'details-table'})"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="fragments/scripts :: scripts"/>
+<th:block th:include="fragments/graphScripts :: scripts"/>
+<th:block th:include="fragments/detailsTableScripts :: scripts"/>
+
+<script>
+
+    var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+    var graphOptions = {
+        processViewId: "#processView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var processModelView = ProcessView(graphOptions);
+
+    window.onload = function () {
+        processModelView.draw("/api/v1/process/model/global");
+    };
+
+</script>
+
+
+</body>
+</html>

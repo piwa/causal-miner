@@ -1,0 +1,109 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Compare Processes</title>
+
+    <th:block th:include="fragments/headerinc :: head" />
+    <th:block th:include="fragments/graphHeaderinc :: head" />
+
+</head>
+
+<body id="viewPage-top">
+
+<th:block th:include="fragments/header :: header" />
+
+<div class="container-fluid">
+
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex mb-0">
+                    <h5 class="mr-auto my-0 font-weight-normal">2020-1-1T00:00:00 - 2021-12-31T11:59:59</h5>
+<!--                    <a href="#" id="nullNodesToggle-1" class="">Toggle NULL Nodes</a>-->
+                </div>
+                <div class="card-body">
+
+                    <div class="row d-flex align-items-stretch">
+
+                        <div class="col-md-8">
+                            <th:block th:include="fragments/processViewCanvas :: processView(processViewElementId='processView-1', processViewSize='small')"/>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card-body">
+                                <th:block th:include="fragments/processViewCanvas :: detailsTable(detailsTableElementId='details-table-1')"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex mb-0">
+                    <h5 class="mr-auto my-0 font-weight-normal">2022-1-1T00:00:00 - 2023-12-31T11:59:59</h5>
+<!--                    <a href="#" id="nullNodesToggle-2" class="">Toggle NULL Nodes</a>-->
+                </div>
+                <div class="card-body">
+
+                    <div class="row d-flex align-items-stretch">
+
+                        <div class="col-md-8">
+                            <th:block th:include="fragments/processViewCanvas :: processView(processViewElementId='processView-2', processViewSize='small')"/>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card-body">
+                                <th:block th:include="fragments/processViewCanvas :: detailsTable(detailsTableElementId=${'details-table-2'})"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:include="fragments/scripts :: scripts" />
+<th:block th:include="fragments/graphScripts :: scripts" />
+<th:block th:include="fragments/detailsTableScripts :: scripts" />
+
+<script>
+
+    var detailsTable1 = $('#details-table-1').DataTable(TableProperties.getDetailsTableVertical());
+    var detailsTable2 = $('#details-table-2').DataTable(TableProperties.getDetailsTableVertical());
+
+    var graphOptions1 = {
+        processViewId: "#processView-1",
+        nullNodeToggleId: "#nullNodesToggle-1",
+        tableElementId: "#details-table-1",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var graphOptions2 = {
+        processViewId: "#processView-2",
+        nullNodeToggleId: "#nullNodesToggle-2",
+        tableElementId: "#details-table-2",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var processModelView1 = ProcessView(graphOptions1);
+    var processModelView2 = ProcessView(graphOptions2);
+
+    window.onload = function () {
+        processModelView1.draw("/api/v1/process/model/compare?startTime=1577833200000&endTime=1640948399000");
+        processModelView2.draw("/api/v1/process/model/compare?startTime=1640991600000&endTime=1704020399000");
+    };
+
+</script>
+
+
+</body>
+</html>

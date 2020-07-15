@@ -1,0 +1,19 @@
+.process-view-small {
+    height: 300px;
+    width: 100%;
+}
+
+.process-view-medium {
+    height: 500px;
+    width: 100%;
+}
+
+.process-view-big {
+    height: 700px;
+    width: 100%;
+}
+
+.process-view-very-big {
+    height: 1000px;
+    width: 100%;
+}

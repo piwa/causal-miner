@@ -1,0 +1,89 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>All Cases</title>
+
+    <!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+    <!--/*/ <th:block th:include="fragments/graphHeaderinc :: head"></th:block> /*/-->
+
+</head>
+
+<body id="viewPage-top">
+
+<!--/*/ <th:block th:include="fragments/header :: header"></th:block> /*/-->
+
+
+<div class="container-fluid" style="height: 700px;">
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex mb-0">
+                    <h5 class="mr-auto my-0 font-weight-normal">All Cases</h5>
+<!--                    <a href="#" id="nullNodesToggle" class="">Toggle NULL Nodes</a>-->
+                </div>
+                <div class="card-body">
+                    <div id="processView" class="process-view-big"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="my-0 font-weight-normal">Details</h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm" id="details-table">
+                            <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--/*/ <th:block th:include="fragments/scripts :: scripts"></th:block> /*/-->
+<!--/*/ <th:block th:include="fragments/graphScripts :: scripts"></th:block> /*/-->
+<!--/*/ <th:block th:include="fragments/detailsTableScripts :: scripts"></th:block> /*/-->
+
+<script>
+
+    var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+    var graphOptions = {
+        processViewId: "#processView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var processModelView = ProcessView(graphOptions);
+
+    window.onload = function () {
+        processModelView.draw("/api/v1/cases/all");
+    };
+
+</script>
+
+
+</body>
+</html>

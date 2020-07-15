@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+</head>
+<body>
+
+<div th:fragment="header">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light bg-white border-bottom shadow-sm p-3 px-md-4 mb-3 ">
+        <a class="navbar-brand font-weight-normal" href="#">Causal Miner</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav navbar-nav ">
+                <li th:class="'nav-item ' + ${importInstancesViewActiveSettings}">
+                    <a th:class="nav-link" href="/import/instance">Import</a>
+                </li>
+                <li th:class="'nav-item ' + ${importInstanceValidationViewActiveSettings}">
+                    <a th:class="nav-link" href="/import/instance/validation">Validation</a>
+                </li>
+                <li th:class="'nav-item ' + ${instanceViewActiveSettings}">
+                    <a th:class="nav-link" href="/process/instance/individual">Process Instances</a>
+                </li>
+                <li th:class="'nav-item ' + ${processModelViewActiveSettings}">
+                    <a th:class="nav-link" href="/process/model/global">Process Model</a>
+                </li>
+                <li th:class="'nav-item ' + ${instanceAggregatedViewActiveSettings}">
+                    <a th:class="nav-link" href="/process/instance/aggregated">Aggregated Instances</a>
+                </li>
+                <li th:class="'nav-item ' + ${instanceGanttViewActiveSetting}">
+                    <a th:class="nav-link" href="/process/instance/gantt/frappe">Gantt Visualisation</a>
+                </li>
+
+
+                <!--                <li class="nav-item dropdown">-->
+                <!--                    <a th:class="'p-2 nav-link dropdown-toggle ' + ${importInstanceValidationViewActiveSettings}"  href="#" id="importDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                <!--                        Import-->
+                <!--                    </a>-->
+                <!--                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+                <!--                        <a th:class="'dropdown-item ' + ${importInstancesViewActiveSettings}" href="/import/instance">Import</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${importInstanceValidationViewActiveSettings}" href="/import/instance/validation">Validation</a>-->
+                <!--                    </div>-->
+                <!--                </li>-->
+                <!--                <li class="nav-item dropdown">-->
+                <!--                    <a th:class="'p-2 nav-link dropdown-toggle ' + ${instanceViewActiveSettings}"  href="#" id="instancesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                <!--                        Process Instances-->
+                <!--                    </a>-->
+                <!--                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+                <!--                        <a th:class="'dropdown-item ' + ${instanceViewActiveSettings}" href="/process/instance/individual">Show</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${instanceAggregatedViewActiveSettings}" href="/process/instance/aggregated">Aggregated</a>-->
+                <!--                        <div class="dropdown-divider"></div>-->
+                <!--                        <a th:class="'dropdown-item ' + ${instanceDurationViewActiveSetting}" href="/process/instance/durations">Durations</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${instanceGanttViewActiveSetting}" href="/process/instance/gantt/frappe">Frappe Gantt</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${instanceGanttViewActiveSetting}" href="/process/instance/gantt/jgantt">JGantt Gantt</a>-->
+                <!--                    </div>-->
+                <!--                </li>-->
+                <!--                <li class="nav-item dropdown">-->
+                <!--                    <a th:class="'p-2 nav-link dropdown-toggle ' + ${processModelViewActiveSettings}"  href="#" id="processModelDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                <!--                        Process Model-->
+                <!--                    </a>-->
+                <!--                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+                <!--                        <a th:class="'dropdown-item ' + ${pathCheckerActiveSettings}" href="/process/model/global">Global</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${pathCheckerActiveSettings}" href="/process/model/combined">Combined</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${pathCheckerActiveSettings}" href="/process/model/individual">Individual</a>-->
+                <!--                        <div class="dropdown-divider"></div>-->
+                <!--                        <a th:class="'dropdown-item ' + ${modelCompareViewActiveSettings}" href="/process/model/comparer">Model Comparer</a>-->
+                <!--                        <a th:class="'dropdown-item ' + ${modelCheckerViewActiveSettings}" href="/process/model/checker">Model Checker</a>-->
+                <!--                    </div>-->
+                <!--                </li>-->
+                <!--                <li class="nav-item dropdown">-->
+                <!--                    <a th:class="'p-2 nav-link dropdown-toggle ' + ${analysisViewActiveSettings}"  href="#" id="analysisDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                <!--                        Analysis-->
+                <!--                    </a>-->
+                <!--                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+                <!--                        <a th:class="'dropdown-item ' + ${driftAnalysisActiveSettings}" href="/analysis/drift">Drift</a>-->
+                <!--                    </div>-->
+                <!--                </li>-->
+            </ul>
+        </div>
+    </nav>
+
+</div>
+
+</body>
+</html>

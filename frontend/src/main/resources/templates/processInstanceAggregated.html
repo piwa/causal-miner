@@ -1,0 +1,131 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Case Selection</title>
+
+    <th:block th:include="fragments/headerinc :: head"/>
+    <th:block th:include="fragments/graphHeaderinc :: head"/>
+
+</head>
+
+<body id="viewPage">
+
+<th:block th:include="fragments/header :: header"/>
+
+<div class="container-fluid">
+
+    <div class="row mt-4">
+
+        <div class="col-md-3">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="my-0 font-weight-normal">Selection</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="eventTypeFormSelect">Event Type</label>
+                        <select class="form-control" id="eventTypeFormSelect" >
+                            <option th:each="eventType: ${eventTypes}" > <span th:text="${eventType}"></span></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventOriginalIdFormImput">Original ID</label>
+                        <input type="text" class="form-control" id="eventOriginalIdFormImput" value="LL170002">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" id="showInstancesButton">Show</button>
+                </div>
+            </div>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="my-0 font-weight-normal">View Configuration</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="aggregationRadio" id="aggregationRadio1"
+                               value="showAll" checked>
+                        <label class="form-check-label" for="aggregationRadio1">
+                            Show all
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="aggregationRadio" id="aggregationRadio2"
+                               value="aggregateNeighbors">
+                        <label class="form-check-label" for="aggregationRadio2">
+                            Aggregate activities same instance
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="aggregationRadio" id="aggregationRadio3"
+                               value="aggregateGlobal">
+                        <label class="form-check-label" for="aggregationRadio3">
+                            Aggregate activities global
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCardConnectedInstanceAmount(cases-table)"/>
+        </div>
+        <div class="col-md-9">
+            <th:block
+                    th:include="fragments/processViewCanvas :: processViewDetailsTableCard(processViewElementId='processView', processViewSize='big', detailsTableElementId='details-table')"/>
+        </div>
+    </div>
+</div>
+
+
+<th:block th:include="fragments/scripts :: scripts"/>
+<th:block th:include="fragments/graphScripts :: scripts"/>
+<th:block th:include="fragments/detailsTableScripts :: scripts"/>
+<th:block th:include="fragments/scripts :: fetchPost"/>
+
+<script>
+    var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+    var casesTable = $('#cases-table').DataTable(TableProperties.getConnectedInstanceAmounts());
+
+    var graphOptions = {
+        processViewId: "#processView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var processModelView = ProcessView(graphOptions);
+
+
+    $('#showInstancesButton').click(() => {
+        var eventType = $('#eventTypeFormSelect').val();
+        var origId = $('#eventOriginalIdFormImput').val();
+
+        var url = "";
+        if (origId === undefined || origId === "") {
+            url = '/api/v1/process/instance/aggregate/table?eventType=' + eventType;
+        } else {
+            url = '/api/v1/process/instance/aggregate/table?eventType=' + eventType + '&origId=' + origId;
+        }
+        postData(url, processModelView.cy.json().elements).then((result) => {
+            casesTable.clear();
+            casesTable.rows.add(result.data).draw();
+        })
+    });
+
+    casesTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var origId = casesTable.rows(indexes).data().pluck('origId')[0];
+            var eventType = casesTable.rows(indexes).data().pluck('eventTypeLabel')[0];
+            var aggregateConfiguration = $("input[name=aggregationRadio]:checked").val();
+
+            if(aggregateConfiguration === "showAll") {
+                processModelView.draw("/api/v1/process/instance/eventType?eventType=" + eventType + "&origId=" + origId);
+            } else {
+                processModelView.draw("/api/v1/process/instance/aggregate?eventType=" + eventType + "&origId=" + origId + "&aggregateConfiguration=" + aggregateConfiguration);
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>

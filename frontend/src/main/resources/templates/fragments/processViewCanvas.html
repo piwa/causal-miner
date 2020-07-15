@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+</head>
+<body>
+
+<div th:fragment="processView(processViewElementId, processViewSize)">
+    <div th:id="${processViewElementId}" th:class="'process-view-' + ${processViewSize}"></div>
+</div>
+
+<div th:fragment="detailsTable(detailsTableElementId)">
+
+    <div class="table-responsive">
+        <table class="table table-hover table-sm" th:id="${detailsTableElementId}">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div th:fragment="processViewDetailsTableCard(processViewElementId, processViewSize, detailsTableElementId)">
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex mb-0">
+            <h5 class="mr-auto my-0 font-weight-normal">Process View</h5>
+<!--            <a href="#" id="nullNodesToggle" class="">Toggle NULL Nodes</a>-->
+        </div>
+        <div class="card-body">
+            <th:block th:include="this :: processView(processViewElementId=${processViewElementId}, processViewSize=${processViewSize})"/>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Details</h5>
+            <th:block th:include="this :: detailsTable(detailsTableElementId=${detailsTableElementId})"/>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

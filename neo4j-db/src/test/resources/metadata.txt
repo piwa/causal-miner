@@ -1,0 +1,10 @@
+allInstances.cypher: MATCH p=(n:InstanceStartActivity)-[*]->(m:InstanceEndActivity) RETURN nodes(p), relationships(p)
+
+doubleInstance.cypher: MATCH p=(n:InstanceStartActivity)-[*]->(m:InstanceEndActivity) WHERE n.instanceId = '1e456a0d-e96e-440a-aae8-6a771590fa26' OR n.instanceId = '545da088-0fba-4afb-91b3-a7d26545c34e' RETURN nodes(p), relationships(p)
+
+singleInstanceParallel.cypher: MATCH p=(n:InstanceStartActivity)-[*]->(m:InstanceEndActivity) WHERE n.instanceId = '8626db5b-9b00-4fbc-93a9-36d4676dfb04' RETURN nodes(p), relationships(p)
+
+singleInstanceSequence.cypher: MATCH p=(n:InstanceStartActivity)-[*]->(m:InstanceEndActivity) WHERE n.instanceId = 'b868322a-321b-4e15-b514-5405ddbf1720' RETURN nodes(p), relationships(p)
+
+twoInstancesCombinedModel.cypher: MATCH p=(n:InstanceStartActivity)-[*]->(m:InstanceEndActivity) WHERE n.instanceId = '1e456a0d-e96e-440a-aae8-6a771590fa26' OR n.instanceId = '8626db5b-9b00-4fbc-93a9-36d4676dfb04' RETURN nodes(p), relationships(p)
+

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+</head>
+<body>
+
+<div th:fragment="dataTableSmallCard(elementId)">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h5 class="my-0 font-weight-normal">Processes</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table th:id="${elementId}" class="table table-hover table-sm w-100">
+                    <thead>
+                    <tr>
+                        <th class="w-60" th:text="${dataTableIdLabel}">Order Nr</th>
+                        <th class="d-none">Full Case ID</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div th:fragment="dataTableProcessInstanceViolationsCard(elementId)">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h5 class="my-0 font-weight-normal">Violations</h5>
+        </div>
+        <div class="card-body">
+            <th:block th:include="this :: dataTableProcessInstanceViolations(${elementId})"/>
+        </div>
+
+    </div>
+</div>
+
+<div th:fragment="dataTableProcessInstanceViolations(elementId)">
+
+    <div class="table-responsive">
+        <table th:id="${elementId}" class="table table-hover table-sm w-100">
+            <thead>
+            <tr>
+                <th class="w-25">Violation Type</th>
+                <th class="w-25">Violation Text</th>
+                <th class="w-25">Start Node</th>
+                <th class="w-25">End Node</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div th:fragment="dataTableSmallCardConnectedInstanceAmount(elementId)">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h5 class="my-0 font-weight-normal">Connected Instance Amount</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table th:id="${elementId}" class="table table-hover table-sm w-100">
+                    <thead>
+                    <tr>
+                        <th class="w-75">ID</th>
+                        <th class="w-25">Amount</th>
+                        <th class="d-none">EventType</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

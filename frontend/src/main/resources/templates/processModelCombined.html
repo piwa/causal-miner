@@ -1,0 +1,96 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Case Selection</title>
+
+    <th:block th:include="fragments/headerinc :: head"/>
+    <th:block th:include="fragments/graphHeaderinc :: head"/>
+
+</head>
+
+<body id="viewPage">
+
+<th:block th:include="fragments/header :: header"/>
+
+<div class="container-fluid">
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCard(model-table)"/>
+        </div>
+        <div class="col-md-8">
+            <th:block
+                    th:include="fragments/processViewCanvas :: processViewDetailsTableCard(processViewElementId='processModelView', processViewSize='small', detailsTableElementId='model-details-table')"/>
+        </div>
+    </div>
+
+    <div class="h-divider"></div>
+    <h3>Corresponding Process Instances</h3>
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCard(instance-table)"/>
+        </div>
+        <div class="col-md-8">
+            <th:block
+                    th:include="fragments/processViewCanvas :: processViewDetailsTableCard(processViewElementId='processInstanceView', processViewSize='small', detailsTableElementId='instance-details-table')"/>
+        </div>
+    </div>
+
+</div>
+
+
+<th:block th:include="fragments/scripts :: scripts"/>
+<th:block th:include="fragments/graphScripts :: scripts"/>
+<th:block th:include="fragments/detailsTableScripts :: scripts"/>
+<th:block th:include="fragments/scripts :: fetchPost"/>
+
+<script>
+
+    var modelTable = $('#model-table').DataTable(TableProperties.getProcessesTable("/api/v1/process/model/combined/table"));
+    var modelDetailsTable = $('#model-details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+    var instanceTable = $('#instance-table').DataTable(TableProperties.getProcessesTable());
+    var instanceDetailsTable = $('#instance-details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+    var modelViewOptions = {
+        processViewId: "#processModelView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#model-details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+    var processModelView = ProcessView(modelViewOptions);
+
+    var instanceViewOptions = {
+        processViewId: "#processInstanceView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#instance-details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+    var processInstanceView = ProcessView(instanceViewOptions);
+
+    modelTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var data = modelTable.rows(indexes).data().pluck('instanceIdFull');
+            processModelView.draw("/api/v1/process/model/" + data[0]);
+
+            instanceTable.destroy();
+            instanceTable = $('#instance-table').DataTable(TableProperties.getProcessesTable('/api/v1/process/instance/ofModel/' + data[0] + '/table'));
+        }
+    });
+
+    instanceTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var data = instanceTable.rows(indexes).data().pluck('instanceIdFull');
+            processInstanceView.draw("/api/v1/process/instance/" + data[0]);
+        }
+    });
+
+</script>
+
+</body>
+</html>

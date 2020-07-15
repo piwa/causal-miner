@@ -1,0 +1,86 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Case Selection</title>
+
+    <th:block th:include="fragments/headerinc :: head"/>
+    <th:block th:include="fragments/graphHeaderinc :: head"/>
+
+</head>
+
+<body id="viewPage">
+
+<th:block th:include="fragments/header :: header"/>
+
+<div class="container-fluid">
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCard(cases-table)"/>
+        </div>
+        <div class="col-md-8">
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex mb-0">
+                    <h5 class="mr-auto my-0 font-weight-normal">Process View</h5>
+<!--                    <a href="#" id="nullNodesToggle" class="">Toggle NULL Nodes</a>-->
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Violations</h5>
+                    <th:block th:include="fragments/dataTableCanvas :: dataTableProcessInstanceViolations(violations-table)"/>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Process Instance</h5>
+                    <th:block th:include="fragments/processViewCanvas :: processView(processViewElementId='processView', processViewSize='medium')"/>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Details</h5>
+                    <th:block th:include="fragments/processViewCanvas :: detailsTable(detailsTableElementId='details-table')"/>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<th:block th:include="fragments/scripts :: scripts"/>
+<th:block th:include="fragments/graphScripts :: scripts"/>
+<th:block th:include="fragments/detailsTableScripts :: scripts"/>
+<th:block th:include="fragments/scripts :: fetchPost"/>
+
+<script>
+
+    var casesTable = $('#cases-table').DataTable(TableProperties.getProcessesTable("/api/v1/import/instance/validation/violations/all/table", true));
+    var ViolationsTable = $('#violations-table').DataTable(TableProperties.getProcessInstanceViolationsTableVertical());
+    var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+    var graphOptions = {
+        processViewId: "#processView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var processModelView = ProcessView(graphOptions);
+
+    casesTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var data = casesTable.rows(indexes).data().pluck('instanceIdFull');
+            var url = "/api/v1/import/instance/validation/violations/" + data[0];
+            
+            processModelView.draw(url + "/graph");
+            postData(url + "/table").then((result) => {
+                ViolationsTable.clear();
+                ViolationsTable.rows.add(result.data).draw();
+            })
+        }
+    });
+
+</script>
+
+</body>
+</html>

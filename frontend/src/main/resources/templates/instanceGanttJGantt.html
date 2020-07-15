@@ -1,0 +1,117 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Case Selection</title>
+
+    <th:block th:include="fragments/headerinc :: head" />
+    <th:block th:include="fragments/graphHeaderinc :: head" />
+
+</head>
+
+<body id="viewPage">
+
+<th:block th:include="fragments/header :: header" />
+
+<div class="container-fluid">
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCard(cases-table)" />
+        </div>
+        <div class="col-md-8">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex mb-0">
+                    <h5 class="mr-auto my-0 font-weight-normal">Gantt View</h5>
+                </div>
+                <div class="card-body">
+                    <div style="position:relative" class="gantt" id="GanttChartDIV"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<th:block th:include="fragments/scripts :: scripts" />
+<th:block th:include="fragments/graphScripts :: scripts" />
+<th:block th:include="fragments/detailsTableScripts :: scripts" />
+<link href="/css/jsgantt.css" rel="stylesheet" type="text/css"/>
+<script src="/js/jsgantt.js" type="text/javascript"></script>
+
+<script>
+
+    var casesTable = $('#cases-table').DataTable(TableProperties.getProcessesTable("/api/v1/process/instance/gantt/all/table"));
+
+    var g = new JSGantt.GanttChart(document.getElementById('GanttChartDIV'), 'day');
+
+    g.setOptions({
+        vCaptionType: 'Duration',  // Set to Show Caption : None,Caption,Resource,Duration,Complete,
+        vShowPlanStartDate: false,
+        vShowPlanEndDate: false,
+        vShowRes: false,
+        vShowComp: false,
+        vShowDur: false,
+        vShowStartDate: true,
+        vShowEndDate: true,
+        vFormatArr: ['Hour', 'Day'],
+        vDateTaskDisplayFormat: "dd/mm/yyyy HH:mm",
+        vDateTaskTableDisplayFormat: "dd/mm/yyyy HH:mm",
+        // vDateTaskDisplayFormat: 'day dd month yyyy', // Shown in tool tip box
+        // vDayMajorDateDisplayFormat: 'mon yyyy - Week ww',// Set format to display dates in the "Major" header of the "Day" view
+        // vWeekMinorDateDisplayFormat: 'dd mon', // Set format to display dates in the "Minor" header of the "Week" view
+        // vAdditionalHeaders: { // Add data columns to your table
+        //     category: {
+        //         title: 'Category'
+        //     },
+        //     sector: {
+        //         title: 'Sector'
+        //     }
+        // },
+        // vShowTaskInfoLink: 1, // Show link in tool tip (0/1)
+        // vShowEndWeekDate: 0,  // Show/Hide the date for the last day of the week in header for daily view (1/0)
+        // vUseSingleCell: 10000, // Set the threshold at which we will only use one cell per table row (0 disables).  Helps with rendering performance for large charts.
+        // vFormatArr: ['Day', 'Week', 'Month', 'Quarter'], // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
+        // vScrollTo: new Date(),
+        // vEvents: {
+        //     taskname: console.log,
+        //     res: console.log,
+        //     dur: console.log,
+        //     comp: console.log,
+        //     start: console.log,
+        //     end: console.log,
+        //     planstart: console.log,
+        //     planend: console.log,
+        //     cost: console.log,
+        //     beforeDraw: ()=>console.log('before draw listener'),
+        //     afterDraw: ()=>console.log('before after listener')
+        // },
+        // vEventClickRow: console.log
+    });
+
+
+    casesTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var data = casesTable.rows(indexes).data().pluck('instanceIdFull');
+
+            fetch("/api/v1/process/instance/gantt/jgantt/" + data[0])
+                .then((response) => {
+                    return response.json();
+                })
+                .then((ganttData) => {
+
+                    g.ClearTasks();
+                    JSGantt.parseJSONString(JSON.stringify(ganttData), g);
+                    g.Draw();
+                });
+        }
+    });
+
+
+
+</script>
+
+</body>
+</html>

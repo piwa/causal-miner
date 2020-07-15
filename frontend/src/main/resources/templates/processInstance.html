@@ -1,0 +1,59 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Case Selection</title>
+
+    <th:block th:include="fragments/headerinc :: head" />
+    <th:block th:include="fragments/graphHeaderinc :: head" />
+
+</head>
+
+<body id="viewPage">
+
+<th:block th:include="fragments/header :: header" />
+
+<div class="container-fluid">
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <th:block th:include="fragments/dataTableCanvas :: dataTableSmallCard(cases-table)" />
+        </div>
+        <div class="col-md-8">
+            <th:block th:include="fragments/processViewCanvas :: processViewDetailsTableCard(processViewElementId='processView', processViewSize='medium', detailsTableElementId='details-table')" />
+        </div>
+    </div>
+</div>
+
+
+<th:block th:include="fragments/scripts :: scripts" />
+<th:block th:include="fragments/graphScripts :: scripts" />
+<th:block th:include="fragments/detailsTableScripts :: scripts" />
+
+<script>
+
+    var casesTable = $('#cases-table').DataTable(TableProperties.getProcessesTable("/api/v1/process/instance/all/table", true));
+    var detailsTable = $('#details-table').DataTable(TableProperties.getDetailsTableVertical());
+
+    var graphOptions = {
+        processViewId: "#processView",
+        nullNodeToggleId: "#nullNodesToggle",
+        tableElementId: "#details-table",
+        onProcessElementClick: (clickedElement) => {
+            TableUtils.verticalOnProcessElementClick(clickedElement);
+        }
+    };
+
+    var processModelView = ProcessView(graphOptions);
+
+    casesTable.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var data = casesTable.rows(indexes).data().pluck('instanceIdFull');
+            processModelView.draw("/api/v1/process/instance/" + data[0]);
+        }
+    });
+
+</script>
+
+</body>
+</html>
